@@ -1,10 +1,10 @@
-// ContactHub Application - Vanilla JavaScript (ES5)
+// ContactHub - Simplified Version (No Class)
 // Global Variables
-var contacts = [];
-var currentEditId = null;
-var modal = null;
+let contacts = [];
+let currentEditId = null;
+let modal = null;
 
-// Initialize Application
+// Initialize
 function init() {
     loadContacts();
     renderContacts();
@@ -12,13 +12,13 @@ function init() {
     setupEventListeners();
 }
 
-// Load Contacts from LocalStorage
+// Load from LocalStorage
 function loadContacts() {
-    var saved = localStorage.getItem('contacts');
+    const saved = localStorage.getItem('contacts');
     contacts = saved ? JSON.parse(saved) : [];
 }
 
-// Save Contacts to LocalStorage
+// Save to LocalStorage
 function saveContacts() {
     localStorage.setItem('contacts', JSON.stringify(contacts));
 }
@@ -33,45 +33,14 @@ function setupEventListeners() {
         searchContacts(e.target.value);
     });
     document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
-    document.getElementById('contactModal').addEventListener('hidden.bs.modal', function() {
-        resetForm();
-    });
 }
 
-// Open Modal (Add or Edit)
-function openModal(contact) {
-    if (contact && typeof contact === 'object') {
-        currentEditId = contact.id;
-        document.getElementById('modalTitle').textContent = 'Edit Contact';
-        populateForm(contact);
-    } else {
-        currentEditId = null;
-        document.getElementById('modalTitle').textContent = 'Add New Contact';
-        resetForm();
-    }
+// Open Modal
+function openModal() {
+    currentEditId = null;
+    document.getElementById('modalTitle').textContent = 'Add New Contact';
+    resetForm();
     modal.show();
-}
-
-// Populate Form with Contact Data
-function populateForm(contact) {
-    document.getElementById('contactId').value = contact.id;
-    document.getElementById('contactName').value = contact.name;
-    document.getElementById('contactPhone').value = contact.phone;
-    document.getElementById('contactEmail').value = contact.email || '';
-    document.getElementById('contactAddress').value = contact.address || '';
-    document.getElementById('contactGroup').value = contact.group || '';
-    document.getElementById('contactNotes').value = contact.notes || '';
-    document.getElementById('contactFavorite').checked = contact.favorite || false;
-    document.getElementById('contactEmergency').checked = contact.emergency || false;
-    document.getElementById('avatarPath').value = contact.avatar || '';
-    
-    var avatarPreview = document.getElementById('avatarPreview');
-    if (contact.avatar) {
-        avatarPreview.innerHTML = '<img src="' + contact.avatar + '" alt="' + contact.name + '">';
-    } else {
-        var initials = getInitials(contact.name);
-        avatarPreview.innerHTML = initials;
-    }
 }
 
 // Reset Form
@@ -81,21 +50,19 @@ function resetForm() {
     document.getElementById('avatarPath').value = '';
     document.getElementById('avatarPreview').innerHTML = '<i class="fas fa-user"></i>';
     
-    var inputs = document.querySelectorAll('.form-control');
-    for (var i = 0; i < inputs.length; i++) {
-        inputs[i].classList.remove('is-invalid');
-    }
+    const inputs = document.querySelectorAll('.form-control');
+    inputs.forEach(input => input.classList.remove('is-invalid'));
     
     currentEditId = null;
 }
 
-// Validate Form Data
+// Validate Form
 function validateForm(data) {
-    var isValid = true;
+    let isValid = true;
     
-    // Name Validation
-    var nameRegex = /^[a-zA-Z\s]{2,50}$/;
-    var nameInput = document.getElementById('contactName');
+    // Name validation
+    const nameRegex = /^[a-zA-Z\s]{2,50}$/;
+    const nameInput = document.getElementById('contactName');
     if (!nameRegex.test(data.name)) {
         nameInput.classList.add('is-invalid');
         isValid = false;
@@ -103,9 +70,9 @@ function validateForm(data) {
         nameInput.classList.remove('is-invalid');
     }
     
-    // Phone Validation (Egyptian Format)
-    var phoneRegex = /^(010|011|012|015)\d{8}$/;
-    var phoneInput = document.getElementById('contactPhone');
+    // Phone validation
+    const phoneRegex = /^(010|011|012|015)\d{8}$/;
+    const phoneInput = document.getElementById('contactPhone');
     if (!phoneRegex.test(data.phone)) {
         phoneInput.classList.add('is-invalid');
         isValid = false;
@@ -113,10 +80,10 @@ function validateForm(data) {
         phoneInput.classList.remove('is-invalid');
     }
     
-    // Email Validation (Optional)
-    var emailInput = document.getElementById('contactEmail');
+    // Email validation
+    const emailInput = document.getElementById('contactEmail');
     if (data.email) {
-        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(data.email)) {
             emailInput.classList.add('is-invalid');
             isValid = false;
@@ -130,11 +97,11 @@ function validateForm(data) {
     return isValid;
 }
 
-// Save Contact (Create or Update)
+// Save Contact
 function saveContact(e) {
     e.preventDefault();
     
-    var data = {
+    const data = {
         name: document.getElementById('contactName').value.trim(),
         phone: document.getElementById('contactPhone').value.trim(),
         email: document.getElementById('contactEmail').value.trim(),
@@ -157,57 +124,28 @@ function saveContact(e) {
     }
     
     if (currentEditId) {
-        // Update Existing Contact
-        var index = -1;
-        for (var i = 0; i < contacts.length; i++) {
-            if (contacts[i].id === currentEditId) {
-                index = i;
-                break;
-            }
-        }
-        
+        // Update
+        const index = contacts.findIndex(c => c.id === currentEditId);
         if (index !== -1) {
-            contacts[index] = {
-                id: contacts[index].id,
-                name: data.name,
-                phone: data.phone,
-                email: data.email,
-                address: data.address,
-                group: data.group,
-                notes: data.notes,
-                favorite: data.favorite,
-                emergency: data.emergency,
-                avatar: data.avatar,
-                createdAt: contacts[index].createdAt
-            };
-            
+            contacts[index] = { ...contacts[index], ...data };
             saveContacts();
             modal.hide();
             
             Swal.fire({
                 icon: 'success',
                 title: 'Updated!',
-                text: 'Contact has been updated successfully',
+                text: 'Contact has been updated',
                 timer: 2000,
                 showConfirmButton: false
             });
         }
     } else {
-        // Add New Contact
-        var newContact = {
+        // Add
+        const newContact = {
             id: Date.now().toString(),
-            name: data.name,
-            phone: data.phone,
-            email: data.email,
-            address: data.address,
-            group: data.group,
-            notes: data.notes,
-            favorite: data.favorite,
-            emergency: data.emergency,
-            avatar: data.avatar,
+            ...data,
             createdAt: new Date().toISOString()
         };
-        
         contacts.push(newContact);
         saveContacts();
         modal.hide();
@@ -215,7 +153,7 @@ function saveContact(e) {
         Swal.fire({
             icon: 'success',
             title: 'Added!',
-            text: 'Contact has been added successfully',
+            text: 'Contact has been added',
             timer: 2000,
             showConfirmButton: false
         });
@@ -235,16 +173,9 @@ function deleteContact(id) {
         confirmButtonColor: '#dc2626',
         cancelButtonColor: '#6b7280',
         confirmButtonText: 'Yes, delete it!'
-    }).then(function(result) {
+    }).then((result) => {
         if (result.isConfirmed) {
-            var newContacts = [];
-            for (var i = 0; i < contacts.length; i++) {
-                if (contacts[i].id !== id) {
-                    newContacts.push(contacts[i]);
-                }
-            }
-            contacts = newContacts;
-            
+            contacts = contacts.filter(c => c.id !== id);
             saveContacts();
             renderContacts();
             updateStats();
@@ -262,74 +193,77 @@ function deleteContact(id) {
 
 // Edit Contact
 function editContact(id) {
-    var contact = null;
-    for (var i = 0; i < contacts.length; i++) {
-        if (contacts[i].id === id) {
-            contact = contacts[i];
-            break;
-        }
+    const contact = contacts.find(c => c.id === id);
+    if (!contact) return;
+    
+    currentEditId = contact.id;
+    document.getElementById('modalTitle').textContent = 'Edit Contact';
+    
+    document.getElementById('contactId').value = contact.id;
+    document.getElementById('contactName').value = contact.name;
+    document.getElementById('contactPhone').value = contact.phone;
+    document.getElementById('contactEmail').value = contact.email || '';
+    document.getElementById('contactAddress').value = contact.address || '';
+    document.getElementById('contactGroup').value = contact.group || '';
+    document.getElementById('contactNotes').value = contact.notes || '';
+    document.getElementById('contactFavorite').checked = contact.favorite || false;
+    document.getElementById('contactEmergency').checked = contact.emergency || false;
+    document.getElementById('avatarPath').value = contact.avatar || '';
+    
+    const avatarPreview = document.getElementById('avatarPreview');
+    if (contact.avatar) {
+        avatarPreview.innerHTML = '<img src="' + contact.avatar + '" alt="' + contact.name + '">';
+    } else {
+        avatarPreview.innerHTML = getInitials(contact.name);
     }
     
-    if (contact) {
-        openModal(contact);
-    }
+    modal.show();
 }
 
-// Toggle Favorite Status
+// Toggle Favorite
 function toggleFavorite(id) {
-    for (var i = 0; i < contacts.length; i++) {
-        if (contacts[i].id === id) {
-            contacts[i].favorite = !contacts[i].favorite;
-            saveContacts();
-            renderContacts();
-            updateStats();
-            break;
-        }
+    const contact = contacts.find(c => c.id === id);
+    if (contact) {
+        contact.favorite = !contact.favorite;
+        saveContacts();
+        renderContacts();
+        updateStats();
     }
 }
 
 // Handle Avatar Upload
 function handleAvatarUpload(e) {
-    var file = e.target.files[0];
+    const file = e.target.files[0];
     if (file) {
-        var reader = new FileReader();
-        reader.onload = function(event) {
-            var avatarPreview = document.getElementById('avatarPreview');
-            avatarPreview.innerHTML = '<img src="' + event.target.result + '" alt="Avatar">';
-            document.getElementById('avatarPath').value = event.target.result;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const avatarPreview = document.getElementById('avatarPreview');
+            avatarPreview.innerHTML = '<img src="' + e.target.result + '" alt="Avatar">';
+            document.getElementById('avatarPath').value = e.target.result;
         };
         reader.readAsDataURL(file);
     }
 }
 
-// Get Initials from Name
+// Get Initials
 function getInitials(name) {
-    var parts = name.split(' ');
-    var initials = '';
-    for (var i = 0; i < parts.length && i < 2; i++) {
-        if (parts[i][0]) {
-            initials += parts[i][0].toUpperCase();
-        }
-    }
-    return initials || 'NA';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
 }
 
-// Render Contacts Grid
+// Render Contacts
 function renderContacts(contactsToRender) {
-    if (!contactsToRender) {
-        contactsToRender = contacts;
-    }
+    if (!contactsToRender) contactsToRender = contacts;
     
-    var contactsList = document.getElementById('contactsList');
+    const contactsList = document.getElementById('contactsList');
     
     if (contactsToRender.length === 0) {
         contactsList.innerHTML = '<div class="col-12"><div class="empty-state"><div class="empty-icon"><i class="fas fa-address-book"></i></div><p class="text-muted fw-medium mb-1">No contacts found</p><p class="text-muted small">Click "Add Contact" to get started</p></div></div>';
         return;
     }
     
-    var html = '';
-    for (var i = 0; i < contactsToRender.length; i++) {
-        var contact = contactsToRender[i];
+    let html = '';
+    for (let i = 0; i < contactsToRender.length; i++) {
+        const contact = contactsToRender[i];
         
         html += '<div class="col-12 col-md-6"><div class="contact-card"><div class="d-flex align-items-start gap-3">';
         
@@ -373,25 +307,19 @@ function renderContacts(contactsToRender) {
     renderEmergency();
 }
 
-// Render Favorites Sidebar
+// Render Favorites
 function renderFavorites() {
-    var favorites = [];
-    for (var i = 0; i < contacts.length; i++) {
-        if (contacts[i].favorite) {
-            favorites.push(contacts[i]);
-        }
-    }
-    
-    var favoritesList = document.getElementById('favoritesList');
+    const favorites = contacts.filter(c => c.favorite);
+    const favoritesList = document.getElementById('favoritesList');
     
     if (favorites.length === 0) {
         favoritesList.innerHTML = '<div class="text-center py-4"><p class="text-muted small mb-0">No favorites yet</p></div>';
         return;
     }
     
-    var html = '';
-    for (var i = 0; i < favorites.length; i++) {
-        var contact = favorites[i];
+    let html = '';
+    for (let i = 0; i < favorites.length; i++) {
+        const contact = favorites[i];
         html += '<div class="favorite-item" onclick="editContact(\'' + contact.id + '\')">';
         
         if (contact.avatar) {
@@ -406,25 +334,19 @@ function renderFavorites() {
     favoritesList.innerHTML = html;
 }
 
-// Render Emergency Contacts Sidebar
+// Render Emergency
 function renderEmergency() {
-    var emergency = [];
-    for (var i = 0; i < contacts.length; i++) {
-        if (contacts[i].emergency) {
-            emergency.push(contacts[i]);
-        }
-    }
-    
-    var emergencyList = document.getElementById('emergencyList');
+    const emergency = contacts.filter(c => c.emergency);
+    const emergencyList = document.getElementById('emergencyList');
     
     if (emergency.length === 0) {
         emergencyList.innerHTML = '<div class="text-center py-4"><p class="text-muted small mb-0">No emergency contacts</p></div>';
         return;
     }
     
-    var html = '';
-    for (var i = 0; i < emergency.length; i++) {
-        var contact = emergency[i];
+    let html = '';
+    for (let i = 0; i < emergency.length; i++) {
+        const contact = emergency[i];
         html += '<div class="favorite-item" onclick="editContact(\'' + contact.id + '\')">';
         
         if (contact.avatar) {
@@ -446,16 +368,14 @@ function searchContacts(query) {
         return;
     }
     
-    var searchTerm = query.toLowerCase();
-    var filtered = [];
+    const searchTerm = query.toLowerCase();
+    const filtered = [];
     
-    for (var i = 0; i < contacts.length; i++) {
-        var contact = contacts[i];
-        var matchName = contact.name.toLowerCase().indexOf(searchTerm) !== -1;
-        var matchPhone = contact.phone.indexOf(searchTerm) !== -1;
-        var matchEmail = contact.email && contact.email.toLowerCase().indexOf(searchTerm) !== -1;
-        
-        if (matchName || matchPhone || matchEmail) {
+    for (let i = 0; i < contacts.length; i++) {
+        const contact = contacts[i];
+        if (contact.name.toLowerCase().includes(searchTerm) ||
+            contact.phone.includes(searchTerm) ||
+            (contact.email && contact.email.toLowerCase().includes(searchTerm))) {
             filtered.push(contact);
         }
     }
@@ -463,20 +383,11 @@ function searchContacts(query) {
     renderContacts(filtered);
 }
 
-// Update Statistics
+// Update Stats
 function updateStats() {
-    var totalCount = contacts.length;
-    var favoritesCount = 0;
-    var emergencyCount = 0;
-    
-    for (var i = 0; i < contacts.length; i++) {
-        if (contacts[i].favorite) {
-            favoritesCount++;
-        }
-        if (contacts[i].emergency) {
-            emergencyCount++;
-        }
-    }
+    const totalCount = contacts.length;
+    const favoritesCount = contacts.filter(c => c.favorite).length;
+    const emergencyCount = contacts.filter(c => c.emergency).length;
     
     document.getElementById('totalCount').textContent = totalCount;
     document.getElementById('favoritesCount').textContent = favoritesCount;
@@ -484,5 +395,5 @@ function updateStats() {
     document.getElementById('totalContactsText').textContent = totalCount;
 }
 
-// Initialize Application on Page Load
+// Initialize when page loads
 window.addEventListener('DOMContentLoaded', init);
