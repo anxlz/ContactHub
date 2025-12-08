@@ -1,10 +1,10 @@
-// ContactHub - Simplified Version (No Class)
+// ContactHub Application - Vanilla JavaScript (No Class, No Const)
 // Global Variables
-let contacts = [];
-let currentEditId = null;
-let modal = null;
+var contacts = [];
+var currentEditId = null;
+var modal = null;
 
-// Initialize
+// Initialize Application
 function init() {
     loadContacts();
     renderContacts();
@@ -12,13 +12,13 @@ function init() {
     setupEventListeners();
 }
 
-// Load from LocalStorage
+// Load Contacts from LocalStorage
 function loadContacts() {
-    const saved = localStorage.getItem('contacts');
+    var saved = localStorage.getItem('contacts');
     contacts = saved ? JSON.parse(saved) : [];
 }
 
-// Save to LocalStorage
+// Save Contacts to LocalStorage
 function saveContacts() {
     localStorage.setItem('contacts', JSON.stringify(contacts));
 }
@@ -27,20 +27,57 @@ function saveContacts() {
 function setupEventListeners() {
     modal = new bootstrap.Modal(document.getElementById('contactModal'));
     
-    document.getElementById('addContactBtn').addEventListener('click', openModal);
+    document.getElementById('addContactBtn').addEventListener('click', function() {
+        openModal();
+    });
+    
     document.getElementById('contactForm').addEventListener('submit', saveContact);
+    
     document.getElementById('searchInput').addEventListener('input', function(e) {
         searchContacts(e.target.value);
     });
+    
     document.getElementById('avatarInput').addEventListener('change', handleAvatarUpload);
+    
+    document.getElementById('contactModal').addEventListener('hidden.bs.modal', function() {
+        resetForm();
+    });
 }
 
-// Open Modal
-function openModal() {
-    currentEditId = null;
-    document.getElementById('modalTitle').textContent = 'Add New Contact';
-    resetForm();
+// Open Modal (Add or Edit)
+function openModal(contact) {
+    if (contact && typeof contact === 'object') {
+        currentEditId = contact.id;
+        document.getElementById('modalTitle').textContent = 'Edit Contact';
+        populateForm(contact);
+    } else {
+        currentEditId = null;
+        document.getElementById('modalTitle').textContent = 'Add New Contact';
+        resetForm();
+    }
     modal.show();
+}
+
+// Populate Form with Contact Data
+function populateForm(contact) {
+    document.getElementById('contactId').value = contact.id;
+    document.getElementById('contactName').value = contact.name;
+    document.getElementById('contactPhone').value = contact.phone;
+    document.getElementById('contactEmail').value = contact.email || '';
+    document.getElementById('contactAddress').value = contact.address || '';
+    document.getElementById('contactGroup').value = contact.group || '';
+    document.getElementById('contactNotes').value = contact.notes || '';
+    document.getElementById('contactFavorite').checked = contact.favorite || false;
+    document.getElementById('contactEmergency').checked = contact.emergency || false;
+    document.getElementById('avatarPath').value = contact.avatar || '';
+    
+    var avatarPreview = document.getElementById('avatarPreview');
+    if (contact.avatar) {
+        avatarPreview.innerHTML = '<img src="' + contact.avatar + '" alt="' + contact.name + '">';
+    } else {
+        var initials = getInitials(contact.name);
+        avatarPreview.innerHTML = initials;
+    }
 }
 
 // Reset Form
@@ -50,19 +87,21 @@ function resetForm() {
     document.getElementById('avatarPath').value = '';
     document.getElementById('avatarPreview').innerHTML = '<i class="fas fa-user"></i>';
     
-    const inputs = document.querySelectorAll('.form-control');
-    inputs.forEach(input => input.classList.remove('is-invalid'));
+    var inputs = document.querySelectorAll('.form-control');
+    for (var i = 0; i < inputs.length; i++) {
+        inputs[i].classList.remove('is-invalid');
+    }
     
     currentEditId = null;
 }
 
-// Validate Form
+// Validate Form Data
 function validateForm(data) {
-    let isValid = true;
+    var isValid = true;
     
-    // Name validation
-    const nameRegex = /^[a-zA-Z\s]{2,50}$/;
-    const nameInput = document.getElementById('contactName');
+    // Name Validation
+    var nameRegex = /^[a-zA-Z\s]{2,50}$/;
+    var nameInput = document.getElementById('contactName');
     if (!nameRegex.test(data.name)) {
         nameInput.classList.add('is-invalid');
         isValid = false;
@@ -70,9 +109,9 @@ function validateForm(data) {
         nameInput.classList.remove('is-invalid');
     }
     
-    // Phone validation
-    const phoneRegex = /^(010|011|012|015)\d{8}$/;
-    const phoneInput = document.getElementById('contactPhone');
+    // Phone Validation (Egyptian Format)
+    var phoneRegex = /^(010|011|012|015)\d{8}$/;
+    var phoneInput = document.getElementById('contactPhone');
     if (!phoneRegex.test(data.phone)) {
         phoneInput.classList.add('is-invalid');
         isValid = false;
@@ -80,10 +119,10 @@ function validateForm(data) {
         phoneInput.classList.remove('is-invalid');
     }
     
-    // Email validation
-    const emailInput = document.getElementById('contactEmail');
+    // Email Validation (Optional)
+    var emailInput = document.getElementById('contactEmail');
     if (data.email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(data.email)) {
             emailInput.classList.add('is-invalid');
             isValid = false;
@@ -97,11 +136,11 @@ function validateForm(data) {
     return isValid;
 }
 
-// Save Contact
+// Save Contact (Create or Update)
 function saveContact(e) {
     e.preventDefault();
     
-    const data = {
+    var data = {
         name: document.getElementById('contactName').value.trim(),
         phone: document.getElementById('contactPhone').value.trim(),
         email: document.getElementById('contactEmail').value.trim(),
@@ -124,28 +163,57 @@ function saveContact(e) {
     }
     
     if (currentEditId) {
-        // Update
-        const index = contacts.findIndex(c => c.id === currentEditId);
+        // Update Existing Contact
+        var index = -1;
+        for (var i = 0; i < contacts.length; i++) {
+            if (contacts[i].id === currentEditId) {
+                index = i;
+                break;
+            }
+        }
+        
         if (index !== -1) {
-            contacts[index] = { ...contacts[index], ...data };
+            contacts[index] = {
+                id: contacts[index].id,
+                name: data.name,
+                phone: data.phone,
+                email: data.email,
+                address: data.address,
+                group: data.group,
+                notes: data.notes,
+                favorite: data.favorite,
+                emergency: data.emergency,
+                avatar: data.avatar,
+                createdAt: contacts[index].createdAt
+            };
+            
             saveContacts();
             modal.hide();
             
             Swal.fire({
                 icon: 'success',
                 title: 'Updated!',
-                text: 'Contact has been updated',
+                text: 'Contact has been updated successfully',
                 timer: 2000,
                 showConfirmButton: false
             });
         }
     } else {
-        // Add
-        const newContact = {
+        // Add New Contact
+        var newContact = {
             id: Date.now().toString(),
-            ...data,
+            name: data.name,
+            phone: data.phone,
+            email: data.email,
+            address: data.address,
+            group: data.group,
+            notes: data.notes,
+            favorite: data.favorite,
+            emergency: data.emergency,
+            avatar: data.avatar,
             createdAt: new Date().toISOString()
         };
+        
         contacts.push(newContact);
         saveContacts();
         modal.hide();
@@ -153,7 +221,7 @@ function saveContact(e) {
         Swal.fire({
             icon: 'success',
             title: 'Added!',
-            text: 'Contact has been added',
+            text: 'Contact has been added successfully',
             timer: 2000,
             showConfirmButton: false
         });
@@ -173,9 +241,16 @@ function deleteContact(id) {
         confirmButtonColor: '#dc2626',
         cancelButtonColor: '#6b7280',
         confirmButtonText: 'Yes, delete it!'
-    }).then((result) => {
+    }).then(function(result) {
         if (result.isConfirmed) {
-            contacts = contacts.filter(c => c.id !== id);
+            var newContacts = [];
+            for (var i = 0; i < contacts.length; i++) {
+                if (contacts[i].id !== id) {
+                    newContacts.push(contacts[i]);
+                }
+            }
+            contacts = newContacts;
+            
             saveContacts();
             renderContacts();
             updateStats();
@@ -193,77 +268,74 @@ function deleteContact(id) {
 
 // Edit Contact
 function editContact(id) {
-    const contact = contacts.find(c => c.id === id);
-    if (!contact) return;
-    
-    currentEditId = contact.id;
-    document.getElementById('modalTitle').textContent = 'Edit Contact';
-    
-    document.getElementById('contactId').value = contact.id;
-    document.getElementById('contactName').value = contact.name;
-    document.getElementById('contactPhone').value = contact.phone;
-    document.getElementById('contactEmail').value = contact.email || '';
-    document.getElementById('contactAddress').value = contact.address || '';
-    document.getElementById('contactGroup').value = contact.group || '';
-    document.getElementById('contactNotes').value = contact.notes || '';
-    document.getElementById('contactFavorite').checked = contact.favorite || false;
-    document.getElementById('contactEmergency').checked = contact.emergency || false;
-    document.getElementById('avatarPath').value = contact.avatar || '';
-    
-    const avatarPreview = document.getElementById('avatarPreview');
-    if (contact.avatar) {
-        avatarPreview.innerHTML = '<img src="' + contact.avatar + '" alt="' + contact.name + '">';
-    } else {
-        avatarPreview.innerHTML = getInitials(contact.name);
+    var contact = null;
+    for (var i = 0; i < contacts.length; i++) {
+        if (contacts[i].id === id) {
+            contact = contacts[i];
+            break;
+        }
     }
     
-    modal.show();
+    if (contact) {
+        openModal(contact);
+    }
 }
 
-// Toggle Favorite
+// Toggle Favorite Status
 function toggleFavorite(id) {
-    const contact = contacts.find(c => c.id === id);
-    if (contact) {
-        contact.favorite = !contact.favorite;
-        saveContacts();
-        renderContacts();
-        updateStats();
+    for (var i = 0; i < contacts.length; i++) {
+        if (contacts[i].id === id) {
+            contacts[i].favorite = !contacts[i].favorite;
+            saveContacts();
+            renderContacts();
+            updateStats();
+            break;
+        }
     }
 }
 
 // Handle Avatar Upload
 function handleAvatarUpload(e) {
-    const file = e.target.files[0];
+    var file = e.target.files[0];
     if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const avatarPreview = document.getElementById('avatarPreview');
-            avatarPreview.innerHTML = '<img src="' + e.target.result + '" alt="Avatar">';
-            document.getElementById('avatarPath').value = e.target.result;
+        var reader = new FileReader();
+        reader.onload = function(event) {
+            var avatarPreview = document.getElementById('avatarPreview');
+            avatarPreview.innerHTML = '<img src="' + event.target.result + '" alt="Avatar">';
+            document.getElementById('avatarPath').value = event.target.result;
         };
         reader.readAsDataURL(file);
     }
 }
 
-// Get Initials
+// Get Initials from Name
 function getInitials(name) {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+    var parts = name.split(' ');
+    var initials = '';
+    for (var i = 0; i < parts.length && i < 2; i++) {
+        if (parts[i] && parts[i][0]) {
+            initials += parts[i][0].toUpperCase();
+        }
+    }
+    return initials || 'NA';
 }
 
-// Render Contacts
+// Render Contacts Grid
 function renderContacts(contactsToRender) {
-    if (!contactsToRender) contactsToRender = contacts;
+    if (!contactsToRender) {
+        contactsToRender = contacts;
+    }
     
-    const contactsList = document.getElementById('contactsList');
+    var contactsList = document.getElementById('contactsList');
     
     if (contactsToRender.length === 0) {
         contactsList.innerHTML = '<div class="col-12"><div class="empty-state"><div class="empty-icon"><i class="fas fa-address-book"></i></div><p class="text-muted fw-medium mb-1">No contacts found</p><p class="text-muted small">Click "Add Contact" to get started</p></div></div>';
         return;
     }
     
-    let html = '';
-    for (let i = 0; i < contactsToRender.length; i++) {
-        const contact = contactsToRender[i];
+    var html = '';
+    for (var i = 0; i < contactsToRender.length; i++) {
+        var contact = contactsToRender[i];
         
         html += '<div class="col-12 col-md-6"><div class="contact-card"><div class="d-flex align-items-start gap-3">';
         
@@ -307,19 +379,25 @@ function renderContacts(contactsToRender) {
     renderEmergency();
 }
 
-// Render Favorites
+// Render Favorites Sidebar
 function renderFavorites() {
-    const favorites = contacts.filter(c => c.favorite);
-    const favoritesList = document.getElementById('favoritesList');
+    var favorites = [];
+    for (var i = 0; i < contacts.length; i++) {
+        if (contacts[i].favorite) {
+            favorites.push(contacts[i]);
+        }
+    }
+    
+    var favoritesList = document.getElementById('favoritesList');
     
     if (favorites.length === 0) {
         favoritesList.innerHTML = '<div class="text-center py-4"><p class="text-muted small mb-0">No favorites yet</p></div>';
         return;
     }
     
-    let html = '';
-    for (let i = 0; i < favorites.length; i++) {
-        const contact = favorites[i];
+    var html = '';
+    for (var i = 0; i < favorites.length; i++) {
+        var contact = favorites[i];
         html += '<div class="favorite-item" onclick="editContact(\'' + contact.id + '\')">';
         
         if (contact.avatar) {
@@ -334,19 +412,25 @@ function renderFavorites() {
     favoritesList.innerHTML = html;
 }
 
-// Render Emergency
+// Render Emergency Contacts Sidebar
 function renderEmergency() {
-    const emergency = contacts.filter(c => c.emergency);
-    const emergencyList = document.getElementById('emergencyList');
+    var emergency = [];
+    for (var i = 0; i < contacts.length; i++) {
+        if (contacts[i].emergency) {
+            emergency.push(contacts[i]);
+        }
+    }
+    
+    var emergencyList = document.getElementById('emergencyList');
     
     if (emergency.length === 0) {
         emergencyList.innerHTML = '<div class="text-center py-4"><p class="text-muted small mb-0">No emergency contacts</p></div>';
         return;
     }
     
-    let html = '';
-    for (let i = 0; i < emergency.length; i++) {
-        const contact = emergency[i];
+    var html = '';
+    for (var i = 0; i < emergency.length; i++) {
+        var contact = emergency[i];
         html += '<div class="favorite-item" onclick="editContact(\'' + contact.id + '\')">';
         
         if (contact.avatar) {
@@ -368,14 +452,16 @@ function searchContacts(query) {
         return;
     }
     
-    const searchTerm = query.toLowerCase();
-    const filtered = [];
+    var searchTerm = query.toLowerCase();
+    var filtered = [];
     
-    for (let i = 0; i < contacts.length; i++) {
-        const contact = contacts[i];
-        if (contact.name.toLowerCase().includes(searchTerm) ||
-            contact.phone.includes(searchTerm) ||
-            (contact.email && contact.email.toLowerCase().includes(searchTerm))) {
+    for (var i = 0; i < contacts.length; i++) {
+        var contact = contacts[i];
+        var matchName = contact.name.toLowerCase().indexOf(searchTerm) !== -1;
+        var matchPhone = contact.phone.indexOf(searchTerm) !== -1;
+        var matchEmail = contact.email && contact.email.toLowerCase().indexOf(searchTerm) !== -1;
+        
+        if (matchName || matchPhone || matchEmail) {
             filtered.push(contact);
         }
     }
@@ -383,11 +469,20 @@ function searchContacts(query) {
     renderContacts(filtered);
 }
 
-// Update Stats
+// Update Statistics
 function updateStats() {
-    const totalCount = contacts.length;
-    const favoritesCount = contacts.filter(c => c.favorite).length;
-    const emergencyCount = contacts.filter(c => c.emergency).length;
+    var totalCount = contacts.length;
+    var favoritesCount = 0;
+    var emergencyCount = 0;
+    
+    for (var i = 0; i < contacts.length; i++) {
+        if (contacts[i].favorite) {
+            favoritesCount++;
+        }
+        if (contacts[i].emergency) {
+            emergencyCount++;
+        }
+    }
     
     document.getElementById('totalCount').textContent = totalCount;
     document.getElementById('favoritesCount').textContent = favoritesCount;
@@ -395,5 +490,5 @@ function updateStats() {
     document.getElementById('totalContactsText').textContent = totalCount;
 }
 
-// Initialize when page loads
+// Initialize Application on Page Load
 window.addEventListener('DOMContentLoaded', init);
