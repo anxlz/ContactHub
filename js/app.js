@@ -1,4 +1,3 @@
-// ContactHub Application - Vanilla JavaScript (No Class, No Const)
 // Global Variables
 var contacts = [];
 var currentEditId = null;
