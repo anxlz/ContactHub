@@ -7,9 +7,7 @@
     --bg-light: #f8fafc;
 }
 
-/* ===========================
-   Global Styles
-   =========================== */
+/* Global Styles */
 * {
     font-family: 'Inter', sans-serif;
 }
@@ -21,9 +19,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ===========================
-   Background Pattern
-   =========================== */
+/* Background Pattern */
 .bg-pattern {
     position: fixed;
     inset: 0;
@@ -56,9 +52,7 @@ body {
     background: linear-gradient(135deg, #ddd6fe 0%, #e0e7ff 100%);
 }
 
-/* ===========================
-   Header Styling
-   =========================== */
+/* Header Styling */
 .main-header {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
@@ -80,9 +74,7 @@ body {
     box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
 }
 
-/* ===========================
-   Buttons
-   =========================== */
+/* Buttons */
 .btn-gradient {
     background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
     border: none;
@@ -117,9 +109,7 @@ body {
     color: #374151;
 }
 
-/* ===========================
-   User Avatar
-   =========================== */
+/* User Avatar */
 .user-avatar {
     width: 40px;
     height: 40px;
@@ -134,9 +124,7 @@ body {
     object-fit: cover;
 }
 
-/* ===========================
-   Stats Cards
-   =========================== */
+/* Stats Cards */
 .stat-card {
     background: white;
     border-radius: 16px;
@@ -173,9 +161,7 @@ body {
     box-shadow: 0 4px 12px rgba(244, 63, 94, 0.25);
 }
 
-/* ===========================
-   Search Bar
-   =========================== */
+/* Search Bar */
 .search-wrapper {
     position: relative;
 }
@@ -209,9 +195,7 @@ body {
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
-/* ===========================
-   Contact Card
-   =========================== */
+/* Contact Card */
 .contact-card {
     background: white;
     border-radius: 16px;
@@ -245,9 +229,7 @@ body {
     font-weight: 700;
 }
 
-/* ===========================
-   Badge Groups
-   =========================== */
+/* Badge Groups */
 .badge-group {
     font-size: 11px;
     padding: 4px 10px;
@@ -280,9 +262,7 @@ body {
     color: #374151;
 }
 
-/* ===========================
-   Action Buttons
-   =========================== */
+/* Action Buttons */
 .action-btn {
     width: 36px;
     height: 36px;
@@ -346,9 +326,7 @@ body {
     transform: scale(1.1);
 }
 
-/* ===========================
-   Sidebar Sections
-   =========================== */
+/* Sidebar Sections */
 .sidebar-section {
     background: white;
     border-radius: 16px;
@@ -390,9 +368,7 @@ body {
     object-fit: cover;
 }
 
-/* ===========================
-   Modal Styling
-   =========================== */
+/* Modal Styling */
 .modal-content {
     border-radius: 16px;
     border: none;
@@ -428,9 +404,7 @@ body {
     border-radius: 16px;
 }
 
-/* ===========================
-   Form Styling
-   =========================== */
+/* Form Styling */
 .form-label {
     font-weight: 500;
     font-size: 14px;
@@ -475,9 +449,7 @@ body {
     box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
-/* ===========================
-   Empty State
-   =========================== */
+/* Empty State */
 .empty-state {
     text-align: center;
     padding: 5rem 1rem;
@@ -496,9 +468,7 @@ body {
     font-size: 36px;
 }
 
-/* ===========================
-   Scrollbar
-   =========================== */
+/* Scrollbar */
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
 }
@@ -508,9 +478,7 @@ body {
     scrollbar-width: none;
 }
 
-/* ===========================
-   Responsive Design
-   =========================== */
+/* Responsive Design */
 @media (max-width: 768px) {
     .logo-box {
         width: 40px;
